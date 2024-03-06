@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="app">
+        <input type="text" v-model="num">
+        <button v-on:click="num++">点赞</button>
+        <button v-on:click="cancle">取消</button>
+        <!-- {{}} 插值，可绑定data值或js表达式 -->
+        <h1> {{name}} ,非常帅，有{{num}}个人为他点赞{{hello()}}</h1>
+    </div>
+    <!-- CDN方式安装，vue.mini.js 压缩版会删除一些开发提示 -->
+    <script src="./vue.js"></script>
+
+    <script>
+        //1、vue声明式渲染,创建实例，真实开发中只会有一个实例
+        let vm = new Vue({
+            el: "#app",//绑定元素，容器与实例一一对应
+            data: {  //封装数据
+                name: "张三",
+                num: 1
+            },
+            methods: {  //封装方法
+                cancle() {
+                    this.num--;
+                },
+                hello() {
+                    return "1"
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
