@@ -1,6 +1,6 @@
 # vuelearn
 
-> A Vue.js project about front end include UI、VUE、ES6 and so on.
+> A Vue.js project about front end include UI、VUE2、ES6 and so on.
 
 # TODO 
 ## 优先级
