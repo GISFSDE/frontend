@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>快速创建ue的地球</title>
+    <script>
+        // 设置cdn服务地址
+        window.xbsjDirs = {
+            cesiumDir: `https://cdn.jsdelivr.net/npm/xbsj-xe2-assets/dist-web/js/cesium/`,
+            xbsjRendererDir: `https://cdn.jsdelivr.net/npm/xbsj-renderer/dist-web/`
+        }
+    </script>
+    <!-- cdn jsdelivr 服务 -->
+    <script src="//cdn.jsdelivr.net/npm/xbsj-xe2/dist-web/xe2-all-in-one.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/xbsj-xe2-assets/dist-web/xe2-assets.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/vue-xe2-plugin/dist-web/vue-xe2-plugin.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/smplotting-xe2-plugin/dist-web/smplotting-xe2-plugin.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/esobjs-xe2-plugin-assets/dist-web/esobjs-xe2-plugin-assets.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/esobjs-xe2-plugin/dist-web/esobjs-xe2-plugin.js"></script>
+
+    <!-- 或者使用unpkg服务 -->
+    <!-- <script src="//unpkg.com/xbsj-xe2/dist-web/xe2-all-in-one.js"></script> -->
+    <!-- ... -->
+    <style>
+        html,
+        body,
+        #xe2Container {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="xe2Container"></div>
+    <script defer="defer">
+        const { ESObjectsManager } = XE2['esobjs-xe2-plugin-main']
+        //场景对象管理器
+        const objm = new ESObjectsManager()
+
+        //创建一个UE视口并且挂载div
+        const options = {
+            domid: 'xe2Container',//domid或者dom元素
+            uri: "http://localhost:8086/",//ESSS信令服务器的服务地址
+            app: "9a1eab97cc7546ffb1764b2916e3eda7"//应用实例的id
+        }
+        const ueViewer = objm.createUEViewer(options)
+
+        //通过json反序列化创建一个影像图层
+        const imageryLayer = objm.createSceneObjectFromJson({
+            "id": "9812a65f-0de0-4f7b-b234-809c0c2fb8ef",
+            "type": "ESImageryLayer",
+            "url": "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
+        });
+    </script>
+</body>
+
+</html>

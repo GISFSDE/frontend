@@ -29,12 +29,12 @@ provide('objm', props.objm)
 </script>
 
 <template>
-  <myDemo />
+  <!-- <myDemo /> -->
   <!-- 创建视口绑定div -->
   <!-- <Xe2Container /> -->
 
   <!-- 切换视口 !-->
-  <!-- <switchToViewer /> -->
+  <switchToViewer />
 
   <!-- 对象的创建与销毁 !-->
   <!-- <example01 /> -->
