@@ -16,6 +16,18 @@ module.exports = {
   publicPath: './',
   lintOnSave: false,
   configureWebpack: {
+    devServer: {
+      proxy: {
+        '/findByTdm': {
+          target: 'http://172.18.33.200',
+          changeOrigin: true,
+          pathRewrite: { '^/findByTdm': '' },
+          headers: {
+            'Access-Control-Allow-Origin': '*'
+          }
+        }
+      }
+    },
     optimization: {
       splitChunks: false,
     },

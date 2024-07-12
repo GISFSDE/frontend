@@ -1,12 +1,17 @@
 <script setup lang='ts'>
 import { getESObjectsManager } from '@/scripts/getESObjectsManager';
 import { onMounted, ref } from 'vue';
-import { ES3DTileset, ESImageryLayer, ESTerrainLayer, ESLocalSkyBox, ESVideoFusion, ESGltfModel, ESHuman } from 'esobjs-xe2-plugin/dist-node/esobjs-xe2-plugin-main';
+import { ES3DTileset, ESImageryLayer, ESTerrainLayer, ESLocalSkyBox, ESVideoFusion, ESGltfModel, ESHuman, ESPolygonFlattenedPlane, ESExcavate, ESWidget } from 'esobjs-xe2-plugin/dist-node/esobjs-xe2-plugin-main';
 const xe2Container = ref<HTMLDivElement>()
 const objm = getESObjectsManager()
 var humanObject = objm.createSceneObject(ESHuman)
 window.g_objm = objm
+
+
+import axios from 'axios'
 var opMove = false;
+var createModel = false;
+var is3DTilesShow = false;
 objm.viewerCreatedEvent.don((viewer) => {
     viewer.clickEvent.don((e) => {
 
@@ -17,7 +22,7 @@ objm.viewerCreatedEvent.don((viewer) => {
                 res[2] = 5;
                 if (res) {
                     // 平滑移动（位置，时长）
-                    humanObject.smoothMove(res, 5)
+                    humanObject.smoothMove(res, 6)
                     console.log('res', res)
                     let target = deepClone(res);
                     // target[0] = target[0] - 0.0001;
@@ -25,6 +30,57 @@ objm.viewerCreatedEvent.don((viewer) => {
                     target[2] = 8;
                     objm.activeViewer.flyIn(target, [187.15651411689228, 2.317686432692143, 359.99751557621585], 8)
                 }
+            }
+        })
+
+    })
+})
+
+objm.viewerCreatedEvent.don((viewer) => {
+    viewer.clickEvent.don((e) => {
+        // 鼠标拾取位置，平滑移动
+        viewer.pickPosition(e.screenPosition).then(res => {
+            console.log('点击创建模型', res)
+            // 
+            axios.get(`https://zlbkjzz.hzsgis.com:8094/incitybrain/B8EBAF81285E9247EB8C8945C2D27FA4/PBS/rest/services/gcs330100g3099_qsmzq_xzyzt/Mapserver/identify?sr=4326&layers=all&tolerance=3
+                &returnGeometry=true&imageDisplay=631,634,96&mapExtent=120.33248558909287,30.34055177772749,120.34604058165566,30.354171215579775&geometry={%22x%22:
+                    ${res[0]},%22y%22:${res[1]},%22spatialReference%22:{%22wkid%22:4326}}&geometryType=esriGeometryPoint&f=json`
+            ).then(result => {
+                console.log('result', result);
+                if (result.data && result.data.results[0]) {
+                    let tdm = result.data.results[0].attributes.tdm;
+
+                    axios.get(`http://localhost:8080/findByTdm/api/tdm/${tdm}F0`
+                    ).then(result => {
+                        console.log('result', result);
+                        // const sceneObject = objm.createSceneObject(ESWidget)
+                        // // 设置位置
+                        // sceneObject.position = res
+                        // // 属性信息
+                        // sceneObject.info = {
+                        //     "title": "示例教程-部件标注", ...result.data.results[0].attributes
+                        //     // "这里是部件的内容": "earthSDK示例教程-部件标注"
+                        // }
+
+                    })
+                }
+            })
+            if (createModel) {
+                console.log('点击创建模型1', res)
+
+                const sceneObject = objm.createSceneObject(ESGltfModel)
+                sceneObject.position = res
+                // 最大缩放比例
+                sceneObject.maximumScale = 2
+                // 最小像素比例
+                sceneObject.minimumPixelSize = 1
+                sceneObject.flyTo();
+                // let target = deepClone(res);
+                // target[0] = target[0] - 0.0005;
+                // target[1] = target[1] - 0.0008;
+                // target[2] = 76.4281746479911
+                // objm.activeViewer.flyIn(target, [144.02309711825225, -28.17072769370796, 0.1322856279501359], 0)
+
             }
         })
 
@@ -47,6 +103,90 @@ function deepClone(obj) {
     }
     return objClone;
 }
+
+// const json = {
+//     "root": {
+//         "children": [
+//             {
+//                 "name": "Cesium基础场景",
+//                 "children": [
+//                     {
+//                         "name": "谷歌影像",
+//                         "sceneObj": {
+//                             "id": "c2c8311e-6e50-47a2-b764-1c82f2d0e251",
+//                             "type": "ES3DTileset",
+//                             "name": "ES3DTileset1",
+//                             "allowPicking": false,
+//                             "maximumScreenSpaceError": 32,
+//                             "url": "http://126.10.1.210:9003/model/1/tileset.json"
+//                         },
+//                         "children": []
+//                     },
+//                     {
+//                         "name": "谷歌影像",
+//                         "sceneObj": {
+//                             "id": "c2c8311e-6e50-47a2-b764-1c82f2d0e252",
+//                             "type": "ES3DTileset",
+//                             "name": "ES3DTileset2",
+//                             "allowPicking": false,
+//                             "maximumScreenSpaceError": 32,
+//                             "url": "http://126.10.1.210:9003/model/2/tileset.json"
+//                         },
+//                         "children": []
+//                     },
+//                     {
+//                         "name": "谷歌影像",
+//                         "sceneObj": {
+//                             "id": "c2c8311e-6e50-47a2-b764-1c82f2d0e253",
+//                             "type": "ES3DTileset",
+//                             "name": "ES3DTileset3",
+//                             "allowPicking": false,
+//                             "maximumScreenSpaceError": 32,
+//                             "url": "http://126.10.1.210:9003/model/3/tileset.json"
+//                         },
+//                         "children": []
+//                     },
+//                     {
+//                         "name": "谷歌影像",
+//                         "sceneObj": {
+//                             "id": "c2c8311e-6e50-47a2-b764-1c82f2d0e254",
+//                             "type": "ES3DTileset",
+//                             "name": "ES3DTileset4",
+//                             "allowPicking": false,
+//                             "maximumScreenSpaceError": 32,
+//                             "url": "http://126.10.1.210:9003/model/4/tileset.json",
+//                             // "show": false,
+//                         },
+//                         "children": []
+//                     }
+
+//                 ]
+//             }
+//         ]
+//     }
+// }
+// // 针对项目场景中更新十分频繁的，涉及业务逻辑的场景对象建议统一使用ESObjectsManager来管理；涉及存储和导出的、不会频繁更新的场景对象可以存储到场景树中ESObjectsManager.sceneTree，例如地形，影像，固定视角等
+// //获取内置默认场景树
+// const sceneTree = objm.sceneTree
+
+// //设置树json
+// sceneTree.json = { ...json }
+// const tree1 = objm.createSceneTree('tree1')
+
+
+// const jsons = {
+//     "id": "e211f45f - bed9 - 4898 - 8ae4- 8f4ba7cba447",
+//     "type": "ESImageryLayer",
+//     "url": "https://gac-geo.googlecnapps.cn/maps/vt?lyrs=s&x={x}&y={y}&z={z}",
+//     "name": "谷歌影像"
+// }
+
+// const currentTreeItem = objm.getSceneTree('tree1').root;
+// const sceneObjTreeItem = sceneTree.createSceneObjectTreeItemFromJson(jsons, currentTreeItem, 'Inner')
+
+
+
+
 let es3DTileset: ES3DTileset | null = null;
 let esImageryLayer: ESImageryLayer | null = null;
 let esTerrainLayer: ESTerrainLayer | null = null;
@@ -111,39 +251,105 @@ const startVideoFusion = () => {
     sceneObject.editing = true;
 }
 const startModel = () => {
-    const sceneObject = objm.createSceneObject(ESGltfModel)
-    // 位置
-    // [120.1805622319813, 30.349133765582764, 19.718025040316736](3)[192.1801145482139, -48.89611695426548, 359.9742942176642]
-    sceneObject.position = [120.1805622319813, 30.349133765582764, 0]
 
-    // 最大缩放比例
-    sceneObject.maximumScale = 2
+    createModel = !createModel;
 
-    // 最小像素比例
-    sceneObject.minimumPixelSize = 1
-    objm.activeViewer.flyIn([120.17973916419592, 30.349505368933983, 53.222527950444515], [121.06901451624985, -17.092764385770643, 359.98687778790287], 0)
 }
 const startWatch = () => {
     opMove = !opMove;
-    // 位置
-    humanObject.position = [120.18156639030802, 30.345430270311326, 1]
-    // 姿态
-    humanObject.rotation = [0, 0, 0]
-    /** 人员有三种模式
-         1. 路人 pedestrian
-         2. 消防员 police
-         3. 警察 police
-    */
-    humanObject.mode = 'police'
-    /**
-     * 动画效果
-     * 1. 奔跑 running
-     * 2. 行走 walking
-     * 3. 站立 standing
-    */
-    humanObject.animation = 'walking'
+    if (opMove) {
+        // 位置
+        humanObject.position = [120.18156639030802, 30.345430270311326, 1]
+        // 姿态
+        humanObject.rotation = [0, 0, 0]
+        /** 人员有三种模式
+             1. 路人 pedestrian
+             2. 消防员 police
+             3. 警察 police
+        */
+        humanObject.mode = 'police'
+        /**
+         * 动画效果
+         * 1. 奔跑 running
+         * 2. 行走 walking
+         * 3. 站立 standing
+        */
+        humanObject.animation = 'walking'
+        objm.activeViewer.flyIn([120.18156639030802, 30.345430270311326, 21.709691272981487], [185.83759529203098, -7.648565841725815, 0.0013616815675382002], 0)
+    }
+}
+const startBaiMo = () => {
+    const baiMoObject = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
+    baiMoObject.url = "https://image.giiiis.com/shanghai/tileset.json"
+
+    /**-------------------------------------科技感模式设置--------------------------------------------**/
+
+    // 科技感模式设置
+    baiMoObject.materialMode = 'technology'
     objm.activeViewer.flyIn([120.18156639030802, 30.345430270311326, 21.709691272981487], [185.83759529203098, -7.648565841725815, 0.0013616815675382002], 0)
 }
+const startFlat = () => {
+    const flatObject = objm.createSceneObject('ESPolygonFlattenedPlane') as ESPolygonFlattenedPlane | undefined
+    //设置挖坑的3dtileset对象的id
+    flatObject.targetID = "c2c8311e-6e50-47a2-b764-1c82f2d0e254"
+    flatObject.points = []
+    flatObject.editing = true
+
+}
+const startHole = () => {
+    // const flatObject = objm.createSceneObject('ESPolygonFlattenedPlane') as ESPolygonFlattenedPlane | undefined
+    const excavateObject = objm.createSceneObject(ESExcavate)
+    excavateObject.targetID = "c2c8311e-6e50-47a2-b764-1c82f2d0e254"
+
+    excavateObject.editing = false
+    excavateObject.points = [[
+        120.16999152070005,
+        30.354644033737383,
+        0
+    ], [
+        120.15067426739226,
+        30.353214418719027,
+        -1.3969838619232178e-9
+    ], [
+        120.15136699059069,
+        30.36159156444283,
+        0
+    ], [
+        120.15891912391068,
+        30.36578336997267,
+        0
+    ], [
+        120.16792828498417,
+        30.36724211085038,
+        0
+    ], [
+        120.17165635282457,
+        30.365156722402254,
+        -1.3969838619232178e-9
+    ]]
+    excavateObject.editing = true
+}
+// const start3DTiles = () => {
+//     is3DTilesShow = !is3DTilesShow;
+//     if (is3DTilesShow) {
+//         const sceneObject = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
+//         if (!sceneObject) return;
+//         sceneObject.url = 'http://126.10.1.210:9003/model/1/tileset.json'
+//         const sceneObject1 = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
+//         if (!sceneObject1) return;
+//         sceneObject1.url = 'http://126.10.1.210:9003/model/2/tileset.json'
+//         const sceneObject3 = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
+//         if (!sceneObject3) return;
+//         sceneObject3.url = 'http://126.10.1.210:9003/model/3/tileset.json'
+//         const sceneObject4 = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
+//         if (!sceneObject4) return;
+//         sceneObject4.url = 'http://126.10.1.210:9003/model/4/tileset.json'
+//         es3DTileset = sceneObject4;
+//         es3DTileset.materialMode = 'technology'
+//     } else {
+//         es3DTileset.show = false;
+//     }
+// }
 onMounted(() => {
     const dom = xe2Container.value;
     //人生哪得圆满!
@@ -163,7 +369,8 @@ onMounted(() => {
         uri: "http://126.10.1.210:8086/",
         app: "9a1eab97cc7546ffb1764b2916e3eda7"
     }
-    const ueViewer = objm.switchToUEViewer(options)
+    const ueViewer = objm.switchToCesiumViewer(options)
+    // ueViewer.sunIntensity = 8
     // const timestamp = hourToTimestamp(2);
     // objm.activeViewer.currentTime = timestamp
     // objm.createSceneObjectFromJson({
@@ -215,58 +422,198 @@ onMounted(() => {
 
     // });
 
-    let imageryObject = objm.createSceneObject('ESImageryLayer') as ESImageryLayer | undefined
+    // let imageryObject = objm.createSceneObject('ESImageryLayer') as ESImageryLayer | undefined
 
-    if (!imageryObject) return;
-    let matrixIds = [];
-    for (let i = 0; i < 19; ++i) {
-        matrixIds[i] = i + 1;
-    }
-    imageryObject.czmTilingSchemeJson = {
-        "type": "GeographicTilingScheme",
-        "numberOfLevelZeroTilesX": 2,
-        "numberOfLevelZeroTilesY": 1
-    }
-    imageryObject.rectangle = [
-        -180,
-        -90,
-        180,
-        90
-    ]
-    imageryObject.maximumLevel = 19
-    imageryObject.minimumLevel = 0
-    imageryObject.zIndex = 2
-    imageryObject.czmTileMatrixLabels = [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18",
-        "19"
-    ]
-    imageryObject.czmImageryProviderType = "wmts"
-    imageryObject.url = 'https://cb.hangzhoumap.gov.cn/26EA6F0EF53CF2A145773FD47072CFA6DF32242B193A67629E351E06A8B69BBD13D37C85C05BE58C7AB60EE9A00FE1D1/PBS/rest/services/worldimage/Mapserver/tile/{TileMatrix}/{TileRow}/{TileCol}';
+    // if (!imageryObject) return;
+    // let matrixIds = [];
+    // for (let i = 0; i < 19; ++i) {
+    //     matrixIds[i] = i + 1;
+    // }
+    // imageryObject.czmTilingSchemeJson = {
+    //     "type": "GeographicTilingScheme",
+    //     "numberOfLevelZeroTilesX": 2,
+    //     "numberOfLevelZeroTilesY": 1
+    // }
+    // imageryObject.rectangle = [
+    //     -180,
+    //     -90,
+    //     180,
+    //     90
+    // ]
+    // imageryObject.maximumLevel = 19
+    // imageryObject.minimumLevel = 0
+    // imageryObject.zIndex = 2
+    // imageryObject.czmTileMatrixLabels = [
+    //     "1",
+    //     "2",
+    //     "3",
+    //     "4",
+    //     "5",
+    //     "6",
+    //     "7",
+    //     "8",
+    //     "9",
+    //     "10",
+    //     "11",
+    //     "12",
+    //     "13",.
+    //     "14",
+    //     "15",
+    //     "16",
+    //     "17",
+    //     "18",
+    //     "19"
+    // ]
+    // imageryObject.czmImageryProviderType = "wmts"
+    // imageryObject.url = 'https://cb.hangzhoumap.gov.cn/26EA6F0EF53CF2A145773FD47072CFA6DF32242B193A67629E351E06A8B69BBD13D37C85C05BE58C7AB60EE9A00FE1D1/PBS/rest/services/worldimage/Mapserver/tile/{TileMatrix}/{TileRow}/{TileCol}';
     // imageryObject.url = 'https://t.hangzhoumap.gov.cn/Tile/ArcGISREST/hztdtlight202112.gis/tile/{TileMatrix}/{TileRow}/{TileCol}';
 
     // imageryObject.url = 'https://cb.hangzhoumap.gov.cn/26EA6F0EF53CF2A145773FD47072CFA6DF32242B193A67629E351E06A8B69BBD13D37C85C05BE58C7AB60EE9A00FE1D1/PBS/rest/services/worldimage/Mapserver/WMTS?service=wmts&request=getTile&tilematrixset=worldimage&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}'
 
+    // 通过json创建一个影像图层
+    const imageryLayer = objm.createSceneObjectFromJson({
+        "id": "b32d0a12-4511-45ae-b398-aaf965b4d456",
+        "type": "ESImageryLayer",
+        "url": "https://cb.hangzhoumap.gov.cn/26EA6F0EF53CF2A145773FD47072CFA6DF32242B193A67629E351E06A8B69BBD13D37C85C05BE58C7AB60EE9A00FE1D1/PBS/rest/services/worldimage/Mapserver/tile/{TileMatrix}/{TileRow}/{TileCol}",
+        "options": {
+            "type": "wmts",
+            "tileMatrixLabels": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "17",
+                "18",
+                "19",
+                "20"
+            ],
+            "tilingScheme": {
+                "type": "GeographicTilingScheme",
+                "numberOfLevelZeroTilesX": 2,
+                "numberOfLevelZeroTilesY": 1
+            }
+        },
+        "name": "ESImageryLayer_b32d",
+        "allowPicking": true
+    });
 
 
+    const sceneObject = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
+    if (!sceneObject) return;
+    sceneObject.url = 'http://126.10.1.210:9003/model/3/tileset.json'
+    sceneObject.editing = false;
 
+    const sceneObject1 = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
+    if (!sceneObject1) return;
+    sceneObject1.url = 'http://126.10.1.210:9003/model/1/tileset.json'
+    sceneObject1.editing = false;
 
+    // const sceneObject3 = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
+    // if (!sceneObject3) return;
+    // sceneObject3.url = 'http://126.10.1.210:9003/model/3/tileset.json'
+    // sceneObject3.id = 'c2c8311e-6e50-47a2-b764-1c82f2d0e254'
+    // sceneObject3.editing = false;
+    const eS3DTileset = objm.createSceneObjectFromJson({
+        "id": "c2c8311e-6e50-47a2-b764-1c82f2d0e254",
+        "type": "ES3DTileset",
+        "name": "ES3DTileset",
+        "allowPicking": true,
+        "url": "http://126.10.1.210:9003/model/2/tileset.json"
+    })
+    const sceneObject4 = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
+    if (!sceneObject4) return;
+    sceneObject4.url = 'http://126.10.1.210:9003/model/4/tileset.json'
+    sceneObject4.editing = false;
+    sceneObject4.maximumScreenSpaceError = 128;
+    es3DTileset = sceneObject4;
+
+    // es3DTileset = ES3DTilesets;
+    // const redLine = objm.createSceneObjectFromJson({
+    //     "id": "b32d0a12-4511-45ae-b398-aaf965b4d4561",
+    //     "type": "ESImageryLayer",
+    //     "url": "https://zlbkjzz.hzsgis.com:8094/incitybrain/B8EBAF81285E9247EB8C8945C2D27FA4/PBS/rest/services/kg_ghdk/Mapserver/tile/{TileMatrix}/{TileRow}/{TileCol}",
+    //     "options": {
+    //         "type": "wmts",
+    //         "tileMatrixLabels": [
+    //             "1",
+    //             "2",
+    //             "3",
+    //             "4",
+    //             "5",
+    //             "6",
+    //             "7",
+    //             "8",
+    //             "9",
+    //             "10",
+    //             "11",
+    //             "12",
+    //             "13",
+    //             "14",
+    //             "15",
+    //             "16",
+    //             "17",
+    //             "18",
+    //             "19",
+    //             "20"
+    //         ],
+    //         "tilingScheme": {
+    //             "type": "GeographicTilingScheme",
+    //             "numberOfLevelZeroTilesX": 2,
+    //             "numberOfLevelZeroTilesY": 1
+    //         }
+    //     },
+    //     "name": "ESImageryLayer_b32d1",
+    //     "allowPicking": true
+    // });
+    const xzyzt = objm.createSceneObjectFromJson({
+        "id": "b32d0a12-4511-45ae-b398-aaf965b4d45611",
+        "type": "ESImageryLayer",
+        "url": "https://zlbkjzz.hzsgis.com:8094/incitybrain/B8EBAF81285E9247EB8C8945C2D27FA4/PBS/rest/services/gcs330100g3099_qsmzq_xzyzt/Mapserver/tile/{TileMatrix}/{TileRow}/{TileCol}",
+        "options": {
+            "type": "wmts",
+            "tileMatrixLabels": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "17",
+                "18",
+                "19",
+                "20"
+            ],
+            "tilingScheme": {
+                "type": "GeographicTilingScheme",
+                "numberOfLevelZeroTilesX": 2,
+                "numberOfLevelZeroTilesY": 1
+            }
+        },
+        "name": "ESImageryLayer_b32d11",
+        "allowPicking": true
+    });
 
 
     // const TerrainLayer = objm.createSceneObject(ESTerrainLayer)
@@ -275,19 +622,6 @@ onMounted(() => {
     // TerrainLayer.url = 'https://cb.hangzhoumap.gov.cn/26EA6F0EF53CF2A145773FD47072CFA6DF32242B193A67629E351E06A8B69BBD13D37C85C05BE58C7AB60EE9A00FE1D1/PBS/rest/services/hzdem30m/TerrainMapServer'
 
 
-    const sceneObject = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
-    if (!sceneObject) return;
-    sceneObject.url = 'http://126.10.1.210:9003/model/1/tileset.json'
-    const sceneObject1 = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
-    if (!sceneObject1) return;
-    sceneObject1.url = 'http://126.10.1.210:9003/model/2/tileset.json'
-    const sceneObject3 = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
-    if (!sceneObject3) return;
-    sceneObject3.url = 'http://126.10.1.210:9003/model/3/tileset.json'
-    const sceneObject4 = objm.createSceneObject('ES3DTileset') as ES3DTileset | undefined
-    if (!sceneObject4) return;
-    sceneObject4.url = 'http://126.10.1.210:9003/model/4/tileset.json'
-    es3DTileset = sceneObject4;
 
     // czmViewer.statusChanged.don(status => {
     //     if (status == 'Created') {
@@ -347,7 +681,18 @@ onMounted(() => {
                 console.log('objm.activeViewer.currentTime', objm.activeViewer.currentTime)
                 objm.activeViewer.currentTime = timestamp
             });
-            objm.activeViewer.flyIn([120.13970230856052, 30.330159698750716, 223.75169368810788], [-90.73604583740234, -37.8074836730957, 0], 0)
+            objm.activeViewer.flyIn([
+                120.1552001311425,
+                30.370288718802406,
+                531.9413836537668
+            ], [
+                152.64848898036388,
+                -32.62203449107452,
+                0.000822100891157131
+            ], 0)
+            objm.activeViewer.atmosphere = false;
+            objm.activeViewer.sun = true;
+
         }
     });
 
@@ -381,15 +726,18 @@ onMounted(() => {
 
     <div style="width: 100%; height: 100%;" ref="xe2Container"></div>
     <div class="btn">
-        <button @click="getCurrentCameraInfo">获取当前视角</button>
-        <button @click="flyTo3DTilest">flyTo3DTilest</button>
-        <button @click="switchToCesiumViewer">切换为czm</button>
-        <button @click="switchToUEViewer">切换为ue</button>
-        <button @click="startAtmosphere">开启大气</button>
-        <button @click="startVideoFusion">视频融合</button>
-        <button @click="startModel">模型创建</button>
-        <button @click="startWatch">巡查演示</button>
-        <div id="panel">
+        <button @click="getCurrentCameraInfo" v-show="false">获取当前视角</button>
+        <button @click="flyTo3DTilest" v-show="false">flyTo3DTilest</button>
+        <button @click="switchToCesiumViewer" v-show="false">切换为czm</button>
+        <button @click="switchToUEViewer" v-show="false">切换为ue</button>
+        <button @click="startAtmosphere" v-show="false">开启大气</button>
+        <button @click="startVideoFusion" v-show="false">视频融合</button>
+        <button @click="startModel" v-show="false">模型创建</button>
+        <button @click="startWatch" v-show="false">巡查演示</button>
+        <button @click="startBaiMo" v-show="false">白膜科技感</button>
+        <button @click="startFlat" v-show="false">压平</button>
+        <button @click="startHole">裁剪</button>
+        <div id="panel" v-show="false">
             <input type="range" min="0" max="24" step="1" value="12" id="rangeInput" />
             <div class="panel-text">
                 <p>0</p>
@@ -402,8 +750,8 @@ onMounted(() => {
 <style scoped>
 .btn {
     position: absolute;
-    left: 0px;
-    top: 0px;
+    left: 22%;
+    top: 200px;
     box-sizing: border-box;
 }
 
