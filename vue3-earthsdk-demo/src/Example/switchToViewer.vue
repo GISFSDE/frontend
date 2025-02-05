@@ -1,11 +1,12 @@
 <script setup lang='ts'>
-import { getESObjectsManager } from '@/scripts/getESObjectsManager';
+import { ESObjectsManager } from 'esobjs-xe2-plugin/dist-node/esobjs-xe2-plugin-main';
 import { onMounted, ref } from 'vue';
 import { ES3DTileset, ESImageryLayer, ESTerrainLayer, ESLocalSkyBox, ESVideoFusion, ESGltfModel, ESHuman, ESPolygonFlattenedPlane, ESExcavate, ESWidget } from 'esobjs-xe2-plugin/dist-node/esobjs-xe2-plugin-main';
 const xe2Container = ref<HTMLDivElement>()
-const objm = getESObjectsManager()
+// const objm = getESObjectsManager()
+const objm = new ESObjectsManager();
 var humanObject = objm.createSceneObject(ESHuman)
-window.g_objm = objm
+// window.g_objm = objm
 
 
 import axios from 'axios'
@@ -205,7 +206,7 @@ const switchToUEViewer = () => {
 
     const options = {
         domid: dom,
-        uri: "http://126.10.1.210:8086/",
+        uri: "http://126.10.1.210:8080/",
         app: "9a1eab97cc7546ffb1764b2916e3eda7"
     }
     const ueViewer = objm.switchToUEViewer(options)
@@ -366,8 +367,9 @@ onMounted(() => {
     //创建一个UE视口,并且绑定一个div容器
     const options = {
         domid: dom,
-        uri: "http://126.10.1.210:8086/",
-        app: "9a1eab97cc7546ffb1764b2916e3eda7"
+        uri: "http://126.10.1.211:9007/",
+        app: "9a1eab97cc7546ffb1764b2916e3eda7",
+        // sunIntensity: 251000,
     }
     const ueViewer = objm.switchToCesiumViewer(options)
     // ueViewer.sunIntensity = 8
@@ -726,18 +728,18 @@ onMounted(() => {
 
     <div style="width: 100%; height: 100%;" ref="xe2Container"></div>
     <div class="btn">
-        <button @click="getCurrentCameraInfo" v-show="false">获取当前视角</button>
-        <button @click="flyTo3DTilest" v-show="false">flyTo3DTilest</button>
-        <button @click="switchToCesiumViewer" v-show="false">切换为czm</button>
-        <button @click="switchToUEViewer" v-show="false">切换为ue</button>
-        <button @click="startAtmosphere" v-show="false">开启大气</button>
-        <button @click="startVideoFusion" v-show="false">视频融合</button>
-        <button @click="startModel" v-show="false">模型创建</button>
-        <button @click="startWatch" v-show="false">巡查演示</button>
-        <button @click="startBaiMo" v-show="false">白膜科技感</button>
-        <button @click="startFlat" v-show="false">压平</button>
+        <button @click="getCurrentCameraInfo" v-show="true">获取当前视角</button>
+        <button @click="flyTo3DTilest" v-show="true">flyTo3DTilest</button>
+        <button @click="switchToCesiumViewer" v-show="true">切换为czm</button>
+        <button @click="switchToUEViewer" v-show="true">切换为ue</button>
+        <button @click="startAtmosphere" v-show="true">开启大气</button>
+        <button @click="startVideoFusion" v-show="true">视频融合</button>
+        <button @click="startModel" v-show="true">模型创建</button>
+        <button @click="startWatch" v-show="true">巡查演示</button>
+        <button @click="startBaiMo" v-show="true">白膜科技感</button>
+        <button @click="startFlat" v-show="true">压平</button>
         <button @click="startHole">裁剪</button>
-        <div id="panel" v-show="false">
+        <div id="panel" v-show="true">
             <input type="range" min="0" max="24" step="1" value="12" id="rangeInput" />
             <div class="panel-text">
                 <p>0</p>
@@ -750,8 +752,8 @@ onMounted(() => {
 <style scoped>
 .btn {
     position: absolute;
-    left: 22%;
-    top: 200px;
+    left: 3%;
+    top: 5rem;
     box-sizing: border-box;
 }
 

@@ -34,10 +34,10 @@ provide('objm', props.objm)
   <!-- <Xe2Container /> -->
 
   <!-- 切换视口 !-->
-  <switchToViewer />
+  <!-- <switchToViewer /> -->
 
   <!-- 对象的创建与销毁 !-->
-  <!-- <example01 /> -->
+  <example01 />
 
   <!-- 属性更改事件监听 !-->
   <!-- <example02 /> -->

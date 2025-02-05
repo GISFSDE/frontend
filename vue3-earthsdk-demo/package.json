@@ -10,7 +10,8 @@
   "dependencies": {
     "axios": "^1.6.8",
     "core-js": "^3.8.3",
-    "esobjs-xe2-plugin": "0.1.67",
+    "esobjs-xe2-plugin": "0.1.12-7.2",
+    "vue-xe2-plugin": "0.1.18",
     "vue": "^3.2.13"
   },
   "devDependencies": {

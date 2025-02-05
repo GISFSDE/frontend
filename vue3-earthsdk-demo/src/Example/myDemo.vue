@@ -1,12 +1,15 @@
 //switchToViewer.vue
 <script setup lang='ts'>
-import { getESObjectsManager } from '@/scripts/getESObjectsManager';
+// import { getESObjectsManager } from '@/scripts/getESObjectsManager';
+import { ESObjectsManager } from 'esobjs-xe2-plugin/dist-node/esobjs-xe2-plugin-main';
+const objm = new ESObjectsManager();
+
 import { onMounted, ref } from 'vue';
 // 通过ref获得html元素
 //名组件中ref='xx' 中的值相同
 // onMounted中获取
 const xe2Container = ref<HTMLDivElement>()
-const objm = getESObjectsManager()
+// const objm = getESObjectsManager()
 
 //将div切换为Cesium视口
 const switchToCesiumViewer = () => {
@@ -22,7 +25,7 @@ const switchToUEViewer = () => {
     if (!dom) return;
     const options = {
         domid: dom,
-        uri: "http://localhost:8086/",//ESSS信令服务器的接口地址
+        uri: "http://localhost:8080/",//ESSS信令服务器的接口地址
         app: "9a1eab97cc7546ffb1764b2916e3eda7"//ESSS信令服务器中的实例id
     }
     const ueViewer = objm.switchToUEViewer(options)
